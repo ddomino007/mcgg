@@ -1,4 +1,6 @@
 Translated to English & Updated by Ren232.
+1.16.1 support by makitard
+"fixed" by ddomino007
 
 <h1> Features </h1>
 - You can access the file manager of the server.<br>
