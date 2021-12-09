@@ -1,9 +1,5 @@
 Translated to English & Updated by Ren232.
 
-1.16.1 support by makitard
-
-"fixed" by ddomino007
-
 <h1> Features </h1>
 - You can access the file manager of the server.<br>
 - Console<br>- Admin panel with account registration<br>
@@ -36,4 +32,6 @@ Translated to English & Updated by Ren232.
 
 <h1> Notice </h1>
 The total ram of a free dyno is limited to 1024 mb.<br>
-When the ram usage is more than 1024 mb, it will reset.
+When the ram usage is more than 1024 mb, it will reset.<br>
+The file manager upload is only intended to be used for small plugins etc.<br>
+When a file takes more than 30 seconds to upload it will result in heroku blocking it.

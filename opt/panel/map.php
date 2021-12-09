@@ -9,16 +9,23 @@ if (empty($_SESSION['user']) || !$user = user_info($_SESSION['user'])) {
 	exit('Not Authorized');
 }
 
+if(isset($_POST['action'])) {
+	if ($_POST['action'] == 'dynmap') {
+		$dir = $user['home'];
+		copy('serverbase/dynmap.jar',$dir.'/plugins/dynmap.jar');
+	}
+}
+
 ?><!doctype html>
 <html>
 <head>
 	<title>Map | MCHostPanel</title>
+	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/bootstrap-responsive.min.css">
 	<link rel="stylesheet" href="css/smooth.css" id="smooth-css">
 	<link rel="stylesheet" href="css/style.css">
-	<meta name="author" content="Alan Hardman <alan@phpizza.com>">
 	<script src="js/jquery-1.7.2.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 </head>
@@ -36,6 +43,10 @@ if (empty($_SESSION['user']) || !$user = user_info($_SESSION['user'])) {
 				<iframe id="map" style="width: 100%; height: 600px; border: none;" frameborder="0" src="http://<?php echo $_SERVER['HTTP_HOST']; ?>:<?php echo $port; ?>/"></iframe>
 			<?php } else { ?>
 				<p class="alert alert-danger">No dynmap configuration found.</p>
+				<form action="map.php" method="post">
+					<input type="hidden" name="action" value="dynmap">
+					<button type="submit" class="btn btn-primary">Install Dynmap</button>
+				</form>
 			<?php } ?>
 			</div>
 		</div>

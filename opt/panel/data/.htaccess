@@ -1,9 +1,0 @@
-Options +FollowSymlinks -MultiViews -Indexes
-
-Order deny,allow
-Deny from all
-
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteRule ^users/ - [F,L]
-</IfModule>
