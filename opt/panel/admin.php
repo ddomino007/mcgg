@@ -1,72 +1,75 @@
 <?php
 require_once 'inc/lib.php';
+
 session_start();
 if ((!$user = user_info($_SESSION['user'])) && !$_SESSION['user']) {
 	// Not logged in, redirect to login page
 	header('Location: .');
 	exit('Not Authorized');
-} elseif (!$_SESSION['is_admin'] && $user['role'] != 'admin') {
+} elseif (empty($_SESSION['is_admin']) && $user['role'] != 'admin') {
 	// Not an admin, redirect to login page
 	header('Location: .');
 	exit('Not Authorized');
 }
+
 // Switch users
-if(isset($_POST['action'])) {
-	if ($_POST['action'] == 'user-switch' && $_POST['user']) {
-		$_SESSION['is_admin'] = true;
-		$_SESSION['user'] = $_POST['user'];
-		header('Location: .');
-		exit('Switching Users');
-	}
-	//Manage a backup cron job
-	if($_POST['action'] == 'backup-manage' && $_POST['user']) {
-		//Determine which button (create or delete) was pressed and pass it as an action
-		$action = (isset($_POST['create']) ? "create" : (isset($_POST['delete']) ? "delete" : exit("Action error")));
-		server_manage_backup($_POST['user'], $action, intvaL($_POST["hrFreq"]), intval($_POST["hrDeleteAfter"]));
-	}
-	// Add new user
-	if ($_POST['action'] == 'user-add') 
-		user_add($_POST['user'], $_POST['pass'], $_POST['role'], $_POST['dir'], $_POST['ram'], $_POST['port'], $_POST['version']);
-	// Delete user
-	if ($_POST['action'] == 'user-delete' && $_POST['user']) {
-		$stu = user_info($_POST['user']);
-		if (!$_SESSION['user'] == $_POST['user'])
-			user_delete($_POST['user'], $stu['dir']);
-	}
-	// Start a server
-	if ($_POST['action'] == 'server-start') {
-		$stu = user_info($_POST['user']);
-		if (!server_running($stu['user']))
-			server_start($stu['user']);
-	}
-	// Kill a server
-	if ($_POST['action'] == 'server-stop') 
-		if ($_POST['user'] == 'ALL')
-			server_kill_all();
-		else
-			server_kill($_POST['user']);		
+if (isset($_POST['action']) && $_POST['action'] == 'user-switch' && $_POST['user']) {
+	$_SESSION['is_admin'] = true;
+	$_SESSION['user'] = $_POST['user'];
+	header('Location: .');
+	exit('Switching Users');
 }
+
+//Manage a backup cron job
+if (isset($_POST['action']) && $_POST['action'] == 'backup-manage' && $_POST['user']) {
+
+	//Determine which button (create or delete) was pressed and pass it as an action
+	$action = (isset($_POST['create']) ? "create" : (isset($_POST['delete']) ? "delete" : exit("Action error")));
+
+	server_manage_backup($_POST['user'], $action, intvaL($_POST["hrFreq"]), intval($_POST["hrDeleteAfter"]));
+}
+
+// Add new user
+if (isset($_POST['action']) && $_POST['action'] == 'user-add')
+	user_add($_POST['user'], $_POST['pass'], $_POST['role'], $_POST['dir'], $_POST['ram'], $_POST['port']);
+
+// Start a server
+if (isset($_POST['action']) && $_POST['action'] == 'server-start') {
+	$stu = user_info($_POST['user']);
+	if (!server_running($stu['user']))
+		server_start($stu['user']);
+}
+
+// Kill a server
+if (isset($_POST['action']) && $_POST['action'] == 'server-stop')
+	if ($_POST['user'] == 'ALL')
+		server_kill_all();
+	else
+		server_kill($_POST['user']);
+
 ?><!doctype html>
 <html>
 <head>
 	<title>Administration | MCHostPanel</title>
-	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/bootstrap-responsive.min.css">
 	<link rel="stylesheet" href="css/smooth.css" id="smooth-css">
 	<link rel="stylesheet" href="css/style.css">
+	<meta name="author" content="Alan Hardman (http://phpizza.com)">
 	<script src="js/jquery-1.7.2.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function () {
 			check_cron();
+
 			window.setTimeout(function () {
 				$('.alert-success,.alert-error').fadeOut();
 			}, 3000);
 			$('#frm-killall').submit(function () {
 				return confirm('Are you sure you want to KILL EVERY SERVER?\nServers will not save any new data, and all connected players will be disconnected!');
 			});
+
 			function check_cron() {
 				$.post('ajax.php', {
 					req: 'get_cron',
@@ -76,26 +79,32 @@ if(isset($_POST['action'])) {
 					if(enabled) {
 						$("#backup-create").prop("disabled",true);
 						$("#backup-delete").removeAttr("disabled");
+
 						$("#hrDeleteAfter").prop("disabled",true);
 						$("#hrFreq").prop("disabled",true);
+
 						$("#hrDeleteAfter").val(data.hrDeleteAfter);
 						$("#hrFreq").val(data.hrFreq);
 					} else {
 						$("#backup-create").removeAttr("disabled");
 						$("#backup-delete").prop("disabled",true);
+
 						$("#hrDeleteAfter").removeAttr("disabled");
 						$("#hrFreq").removeAttr("disabled");
+
 						$("#hrDeleteAfter").val(0);
 						$("#hrFreq").val(1);
 					}
 				});
 			}
+
 			$("#backup-user").change(check_cron);
+
 		});
 	</script>
-<?php require 'inc/top.php'; ?>
 </head>
 <body>
+<?php require 'inc/top.php'; ?>
 <div class="container-fluid">
 	<h1 class="pull-left">Administration</h1>
 	<?php if (isset($_POST['action']) && $_POST['action'] == 'user-add') { ?>
@@ -104,20 +113,10 @@ if(isset($_POST['action'])) {
 		<p class="alert alert-success pull-right"><i class="icon-ok"></i> Server started.</p>
 	<?php } elseif (isset($_POST['action']) && $_POST['action'] == 'server-stop') { ?>
 		<p class="alert alert-success pull-right"><i class="icon-ok"></i> Server killed.</p>
-	<?php } elseif (isset($_POST['action']) && $_POST['action'] == 'user-delete') {
-		if (!$_SESSION['user'] == $_POST['user']) { ?>
-			<p class="alert alert-success pull-right"><i class="icon-ok"></i> User deleted successfully.</p>
-		<?php } else { ?>
-			<p class="alert alert-danger pull-right">You can't delete your own account!</p>
-		<?php } ?>
 	<?php } ?>
 	<div class="clearfix"></div>
 	<div class="row-fluid">
 		<div class="span8">
-			<legend>Capacity</legend>
-			<pre><?php echo `df -h` ?></pre>
-			<legend>Ram (MB)</legend>
-			<pre><?php echo `free -mtl` ?></pre>
 			<form action="admin.php" method="post">
 				<legend>Running Servers</legend>
 				<pre>Running as user: <?php echo `whoami` . "\n" . `screen -ls`; ?></pre>
@@ -234,7 +233,7 @@ if(isset($_POST['action'])) {
 					<div class="controls">
 						<div class="input-prepend">
 							<span class="add-on"><i class="icon-folder-open"></i></span>
-							<input class="span10" type="text" name="dir" id="dir" value="/app/server/">
+							<input class="span10" type="text" name="dir" id="dir" value="<?php echo strtr(dirname(__FILE__), '\\', '/'); ?>">
 						</div>
 					</div>
 				</div>
@@ -253,7 +252,7 @@ if(isset($_POST['action'])) {
 					<label class="control-label" for="port">Server Port</label>
 
 					<div class="controls">
-						<input class="span3" type="number" name="port" id="port" value="<?php echo rand(1000,65535)?>">
+						<input class="span3" type="number" name="port" id="port" value="25565">
 						<span class="text-info">0 = No Server</span>
 					</div>
 				</div>
@@ -263,44 +262,11 @@ if(isset($_POST['action'])) {
 					<div class="controls">
 						<select name="role" id="role" class="span4">
 							<option value="user" selected>User</option>
-							<option value="premium">Premium</option>
 							<option value="admin">Administrator</option>
 						</select>
 					</div>
 				</div>
-				<div class="control-group">
-					<label class="control-label" for="version">Server Version</label>
-					
-					<div class="controls">
-						<select name="version" id="version" class="span4">
-							<option value="1.16.2">Spigot 1.16.2</option>
-							<option value="1.16.1">Spigot 1.16.1</option>
-							<option value="1.14.4">Spigot 1.14.4</option>
-							<option value="1.12.2">Spigot 1.12.2</option>
-							<option value="1.11.2">Spigot 1.11.2</option>
-							<option value="1.10.2">Spigot 1.10.2</option>
-							<option value="1.9.4">Spigot 1.9.4</option>
-							<option value="1.8.8">Spigot 1.8.8</option>
-							<option value="1.7.10">Spigot 1.7.10</option>
-							<option value="BC">Bungeecord</option>
-							<option value="NONE">None</option>
-						</select>
-					</div>
-				</div>
 				<button type="submit" class="btn btn-primary">Add User</button>
-			</form>
-			<form action="admin.php" method="post">
-				<legend>Delete a User</legend>
-				<input type="hidden" name="action" value="user-delete">
-				<select name="user" style="vertical-align: top;">
-					<?php
-					$ull = user_list();
-					foreach ($ull as $u)
-						if($u != "empty")
-							echo '<option value="' . $u . '">' . $u . '</option>';
-					?>
-				</select>
-				<button type="submit" class="btn btn-danger">Delete user</button>
 			</form>
 		</div>
 	</div>

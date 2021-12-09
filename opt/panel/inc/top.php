@@ -1,19 +1,18 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <div class="navbar navbar-inverse navbar-fixed-top">
 	<div class="navbar-inner">
-		<a class="brand" href="dashboard.php"><strong>MCGG</strong> Web Panel</a>
+		<a class="brand" href="dashboard.php">MC<strong>Host</strong>Panel</a>
 		<ul class="nav pull-right">
 			<?php if(!empty($_SESSION['is_admin']) || $user['role']=='admin') { ?>
-				<li><a href="admin.php">Admin Panel</a></li>
+				<li><a href="admin.php">Administration</a></li>
 			<?php } ?>
 
-			<li><a href='profile.php'>User <strong><?php echo $user['user']; ?></strong></a></li>
+			<li><a href='userProfile.php'>Logged in as <strong><?php echo $user['user']; ?></strong></a></li>
 
 			<?php if($user['user']) { ?>
-				<li><img width="40" height="40" src="//minotar.net/avatar/<?php echo urlencode($user['user']); ?>" alt="<?php echo $user['user']; ?>"></li>
+				<li><img width="40" height="40" src="inc/getFace.php?username=<?php echo urlencode($user['user']); ?>" alt="<?php echo $user['user']; ?>"></li>
 			<?php } ?>
 
-			<li><a href="./?logout"><i class="icon-off icon-white"></i></a></li>
+			<li><a href="./?logout"><i class="icon-off icon-white"></i> Log Out</a></li>
 		</ul>
 	</div>
 </div>
@@ -34,11 +33,7 @@
 			$port = $config["webserver-port"];
 		?>
 		<li <?php echo basename($_SERVER["SCRIPT_NAME"]) == "map.php" ? 'class="active"' : ""; ?>>
-			<a href="//<?php echo $_SERVER['HTTP_HOST']; ?>:<?php echo $port; ?>">Map&ensp;</a>
-		</li>
-	<?php } else { ?>
-		<li <?php echo basename($_SERVER["SCRIPT_NAME"]) == "map.php" ? 'class="active"' : ""; ?>>
-			<a href="map.php">Map</a>
+			<a href="map.php">Map&ensp;<i class="icon-share" onclick="window.open('http://<?php echo $_SERVER['HTTP_HOST']; ?>:<?php echo $port; ?>/'); return false;"></i></a>
 		</li>
 	<?php } ?>
 </ul>
