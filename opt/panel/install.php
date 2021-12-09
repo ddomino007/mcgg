@@ -107,6 +107,7 @@ if (!empty($_POST['user'])) {
 				<div class="controls">
 					<select name="version" id="version" class="span2">
 						<option value="1.18">Paper 1.18</option>
+						<option value="1.17">Paper 1.17</option>
 						<option value="1.16.2">Spigot 1.16.2</option>
 						<option value="1.16.1">Spigot 1.16.1</option>
 						<option value="NONE">None</option>
