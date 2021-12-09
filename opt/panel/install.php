@@ -1,19 +1,15 @@
 <?php
 require_once 'inc/lib.php';
-
-$installed = is_file(__DIR__ . '/.installed');
-
-if (!$installed && !empty($_POST['user'])) {
+if (!empty($_POST['user'])) {
 	session_start();
-	user_add($_POST['user'], $_POST['pass'], 'admin', $_POST['dir'], $_POST['ram'], $_POST['port']);
+	user_add($_POST['user'], $_POST['pass'], 'admin', $_POST['dir'], $_POST['ram'], $_POST['port'], $_POST['version']);
 	file_put_contents(".installed", "");
 	$_SESSION['user'] = clean_alphanum($_POST['user']);
 }
-
 ?><!doctype html>
 <html>
 <head>
-	<title>Install MCHostPanel</title>
+	<title>Install MCGG</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/bootstrap-responsive.min.css">
@@ -21,13 +17,13 @@ if (!$installed && !empty($_POST['user'])) {
 	<meta name="author" content="Alan Hardman (http://phpizza.com)">
 </head>
 <body>
-<?php if ($installed) { ?>
+<?php if (is_file(".installed")) { ?>
 	<div class="modal">
 		<div class="modal-header">
-			<h3>Install MCHostPanel</h3>
+			<h3>Install MCGG</h3>
 		</div>
 		<div class="modal-body">
-			<p>MCHostPanel has already been installed.</p>
+			<p>MCGG has already been installed.</p>
 
 			<p class="alert alert-info">If you are sure it is not installed, delete the <code>.installed</code> file and refresh this page.</p>
 		</div>
@@ -80,7 +76,7 @@ if (!$installed && !empty($_POST['user'])) {
 				<div class="controls">
 					<div class="input-prepend">
 						<span class="add-on"><i class="icon-folder-open"></i></span>
-						<input class="span2" type="text" name="dir" id="dir" value="<?php echo strtr(dirname(__FILE__), '\\', '/'); ?>">
+						<input class="span2" type="text" name="dir" id="dir" value="/app/server/">
 					</div>
 				</div>
 			</div>
@@ -89,7 +85,7 @@ if (!$installed && !empty($_POST['user'])) {
 
 				<div class="controls">
 					<div class="input-append">
-						<input class="span3" type="number" name="ram" id="ram" value="512">
+						<input class="span2" type="number" name="ram" id="ram" value="512">
 						<span class="add-on">MB</span>
 					</div>
 					<span class="text-info">0 MB = No Server</span>
@@ -99,8 +95,20 @@ if (!$installed && !empty($_POST['user'])) {
 				<label class="control-label" for="port">Server Port</label>
 
 				<div class="controls">
-					<input class="span3" type="number" name="port" id="port" value="25565">
+					<div class="input-prepend">
+						<input class="span2" type="number" name="port" id="port" value="25565">
+				 	</div>
 					<span class="text-info">0 = No Server</span>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="version">Server Version</label>
+					
+				<div class="controls">
+					<select name="version" id="version" class="span2">
+						<option value="1.18">Paper 1.18</option>
+						<option value="NONE">None</option>
+					</select>
 				</div>
 			</div>
 		</div>
